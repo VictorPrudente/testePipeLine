@@ -10,7 +10,7 @@ import static io.qameta.allure.Allure.step;
 public class BaseClient {
 
     final String BASE_URI = "https://provas-back-hml.onrender.com";
-
+    final String test = "test";
     public RequestSpecification set() {
 
         return step("Configurando a especificação base da requisição", () ->
