@@ -2,8 +2,10 @@ name: Pipeline QA API Provas
 
 on:
   pull_request:
-    - main
-    - develop
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
 
 jobs:
 
