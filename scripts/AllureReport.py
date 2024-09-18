@@ -14,7 +14,7 @@ options.add_argument('--headless')
 driver = webdriver.Chrome(options=options)
 
 driver.get(base_url)
-orcentagem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'text[class="chart__caption"]')))
+porcentagem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'text[class="chart__caption"]')))
 porcentagem_text = porcentagem.text
 
 qtdTeste = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.splash__title')))
