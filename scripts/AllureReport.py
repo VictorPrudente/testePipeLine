@@ -38,17 +38,21 @@ driver.quit()
 
 webhook = DiscordWebhook(url=webhook_key)
 
-embed = DiscordEmbed()
+embed = DiscordEmbed(
+        title="Your Title",
+        description="[LINK VERCEL](https://estudos-github-actions.vercel.app)"
+ )
 
-embed.set_title("Relatório - API Provas")
 
 if(porcentagem_text == "100%"):
     embed.set_color("00FF00")
 else:
     embed.set_color("FF0000")
-    embed.add_embed_field("Quantidade de teste", qtdTeste_text, False)
+    
+embed.add_embed_field("Quantidade de teste", qtdTeste_text, False)
+if(qtdFalhas):
     embed.add_embed_field("Falhas", qtdFalhas_text, False)
-    embed.add_embed_field("Tempo decorrido", tempoDecorrido_text, False)
+embed.add_embed_field("Tempo decorrido", tempoDecorrido_text, False)
 
 with open("./allure_screenshot.png", "rb") as f:
     webhook.add_file(file=f.read(), filename="allure_screenshot.png")
@@ -56,4 +60,4 @@ embed.set_image(url="attachment://allure_screenshot.png")
 
 webhook.add_embed(embed)
 
-webhook.execute()
+webhook.execute()e
