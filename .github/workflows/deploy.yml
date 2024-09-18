@@ -26,6 +26,13 @@ jobs:
         continue-on-error: false
         id: healthcheck
 
+      - name: Install Allure CLI
+        run: |
+          curl -o allure.tgz -L "https://github.com/allure-framework/allure2/releases/download/2.20.1/allure-2.20.1.tgz"
+          tar -zxvf allure.tgz
+          sudo mv allure-2.20.1 /usr/local/bin/allure
+          sudo ln -s /usr/local/bin/allure/bin/allure /usr/bin/allure
+
       - name: Upload resultados Health Check
         if: always()
         uses: actions/upload-artifact@v4
