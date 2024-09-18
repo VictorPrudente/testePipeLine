@@ -1,0 +1,4 @@
+"Epic","Feature","Story","FAILED","BROKEN","PASSED","SKIPPED","UNKNOWN"
+"Login","1. Testes de Health Check","Como usuário do sistema, desejo acessar a página de login e ter acesso a ela","0","0","1","0","0"
+"Login","3. Testes Funcionais","Como usuário do sistema, desejo fazer login na aplicação quando inserir email e senha validos","0","0","1","0","0"
+"Login","2. Testes de Contrato","Como usuário do sistema, desejo ter minha credencial validada ao inserir meu email e senha validos","0","0","1","0","0"
