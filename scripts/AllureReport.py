@@ -7,7 +7,7 @@ from discord_webhook import DiscordWebhook, DiscordEmbed
 import os
 
 webhook_key = os.getenv('WEBHOOK_KEY')
-base_url = "https://estudos-github-actions.vercel.app"
+base_url = "https://teste-pipe-line.vercel.app/"
 
 options = webdriver.ChromeOptions()
 options.add_argument('--headless')
@@ -23,7 +23,7 @@ driver.quit()
 
 webhook = DiscordWebhook(url=webhook_key)
 
-embed = DiscordEmbed(title="Your Title", description="[LINK VERCEL](https://estudos-github-actions.vercel.app)")
+embed = DiscordEmbed(title="Your Title", description="[LINK VERCEL](https://teste-pipe-line.vercel.app/)")
 
 if(text == "100%"):
     embed.set_color("00FF00")
