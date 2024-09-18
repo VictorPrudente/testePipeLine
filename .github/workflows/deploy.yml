@@ -38,6 +38,7 @@ jobs:
   deploy_report:
     name: Allure Report
     runs-on: ubuntu-latest
+    needs: health_check
 
     steps:
       - name: Checkout code
