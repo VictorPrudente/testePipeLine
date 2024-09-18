@@ -69,6 +69,6 @@ jobs:
 
     - name: Run Python script with webhook key
       run: |
-        python screenshot.py
+        python scripts/AllureReport.py
       env:
         WEBHOOK_KEY: ${{ secrets.WEBHOOK_KEY }}
