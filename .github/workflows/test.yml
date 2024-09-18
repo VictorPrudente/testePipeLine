@@ -32,9 +32,28 @@ jobs:
           allure_history: allure-history
           allure_results: build/allure-results
 
+      - name: Fix directory permissions
+        run: |
+          sudo chown -R $USER:$USER allure-history
+          sudo chmod -R u+rwX,g+rwX,o+rX allure-history
+
       - name: Edit index.html to include GitHub Run ID
         run: |
-          sed -i 's/https:\/\/estudos-github-actions.vercel.app\/.*/https:\/\/estudos-github-actions.vercel.app\/${{ github.run_id }}\//g' allure-history/index.html
+          python3 -c "
+import re
+
+file_path = 'allure-history/index.html'
+github_run_id = '${{ github.run_id }}'
+new_url = f'https://estudos-github-actions.vercel.app/{github_run_id}/'
+
+with open(file_path, 'r') as file:
+    content = file.read()
+
+content = re.sub(r'https://estudos-github-actions.vercel.app/.*', new_url, content)
+
+with open(file_path, 'w') as file:
+    file.write(content)
+    "
         if: always()
 
       - name: Commit and push changes
