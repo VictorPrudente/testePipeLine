@@ -17,17 +17,20 @@ options.add_argument('--headless')
 driver = webdriver.Chrome(options=options)
 driver.get(base_url)
 
-# Atributos para o Print do Discord
-porcentagem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'text[class="chart__caption"]'))).text
-qtdTeste = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.splash__title'))).text
-data = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.widget__title'))).text
-tempoDecorrido = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.widget__subtitle'))).text
+# Metodo para pegar os atributos
+def getElement(driver, selector, timeout=10):
+    try:
+        return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.CSS_SELECTOR, selector))).text
+    except Exception as e:
+        return None
 
-# Aqui se não tiver erro dá tudo certo :D
-try:
-    qtdFalhas = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > div:nth-of-type(2) > div > div'))).text
-except Exception as e:
-    qtdFalhas = "0"
+# Atributos para o Print do Discord
+porcentagem_text = getElement(driver, 'text[class="chart__caption"]')
+qtdTeste_text = getElement(driver, '.splash__title')
+data_text = getElement(driver, '.widget__title')
+tempoDecorrido_text = getElement(driver, '.widget__subtitle')
+qtdFalhas_text = getElement(driver, 'div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > div:nth-of-type(2) > div > div') or "0"
+
 
 # Tira o print
 driver.save_screenshot("allure_screenshot.png")
@@ -44,7 +47,7 @@ embed = DiscordEmbed(
  )
 
 # Cor da borda da print
-embed.set_color("00FF00" if porcentagem_text == "100%" else "FF0000")
+embed.set_color("00FF00" if porcentagem == "100%" else "FF0000")
 
 # Atributos da print
 embed.add_embed_field("Quantidade de teste", qtdTeste, False)
