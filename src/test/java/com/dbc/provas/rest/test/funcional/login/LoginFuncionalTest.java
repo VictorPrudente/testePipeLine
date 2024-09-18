@@ -3,13 +3,13 @@ package com.dbc.provas.rest.test.funcional.login;
 import com.dbc.provas.rest.test.base.LoginBase;
 import com.dbc.provas.utils.Manipulation;
 import io.qameta.allure.*;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.junitpioneer.jupiter.RetryingTest;
 
 import static com.dbc.provas.story.DisplayName.FUNCIONAL_LOGIN;
 import static com.dbc.provas.story.Feature.FEATURE_FUNCIONAL;
-import static com.dbc.provas.story.Tags.*;
+import static com.dbc.provas.story.Tags.CENARIO_POSITIVO;
+import static com.dbc.provas.story.Tags.FUNCIONAL;
 import static com.dbc.provas.story.UserStories.*;
 import static io.qameta.allure.Allure.step;
 import static java.net.HttpURLConnection.HTTP_OK;
