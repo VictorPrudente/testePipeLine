@@ -14,21 +14,35 @@ options.add_argument('--headless')
 driver = webdriver.Chrome(options=options)
 
 driver.get(base_url)
-element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'text[class="chart__caption"]')))
-text = element.text
+orcentagem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'text[class="chart__caption"]')))
+porcentagem_text = porcentagem.text
 
+qtdTeste = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.splash__title')))
+qtdTeste_text = qtdTeste.text
+
+data = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.widget__title')))
+data_text = data.text
+
+tempoDecorrido = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.widget__subtitle')))
+tempoDecorrido_text = tempoDecorrido.text
+
+qtdFalhas = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > div:nth-of-type(2) > div > div')))
+qtdFalhas_text = qtdFalhas.text
 driver.save_screenshot("allure_screenshot.png")
 
 driver.quit()
 
 webhook = DiscordWebhook(url=webhook_key)
 
-embed = DiscordEmbed(title="Your Title", description="[LINK VERCEL](https://teste-pipe-line.vercel.app/)")
+embed.set_title("Relatório - API Provas")
 
-if(text == "100%"):
+if(porcentagem_text == "100%"):
     embed.set_color("00FF00")
 else:
     embed.set_color("FF0000")
+    embed.add_embed_field("Quantidade de teste", qtdTeste_text, False)
+    embed.add_embed_field("Falhas", qtdFalhas_text, False)
+    embed.add_embed_field("Tempo decorrido", tempoDecorrido_text, False)
 
 with open("./allure_screenshot.png", "rb") as f:
     webhook.add_file(file=f.read(), filename="allure_screenshot.png")
