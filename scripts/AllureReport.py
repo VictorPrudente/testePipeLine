@@ -39,7 +39,7 @@ driver.quit()
 webhook = DiscordWebhook(url=webhook_key)
 
 embed = DiscordEmbed(
-        title="Your Title",
+        title="Relatório Testes API - Provas",
         description="[LINK VERCEL](https://estudos-github-actions.vercel.app)"
  )
 
