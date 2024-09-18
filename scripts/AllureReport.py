@@ -48,9 +48,9 @@ if(porcentagem_text == "100%"):
     embed.set_color("00FF00")
 else:
     embed.set_color("FF0000")
-    
+
 embed.add_embed_field("Quantidade de teste", qtdTeste_text, False)
-if(qtdFalhas):
+if qtdFalhas_text != "0":
     embed.add_embed_field("Falhas", qtdFalhas_text, False)
 embed.add_embed_field("Tempo decorrido", tempoDecorrido_text, False)
 
