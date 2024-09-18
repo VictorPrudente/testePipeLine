@@ -38,6 +38,8 @@ driver.quit()
 
 webhook = DiscordWebhook(url=webhook_key)
 
+embed = DiscordEmbed()
+
 embed.set_title("Relatório - API Provas")
 
 if(porcentagem_text == "100%"):
