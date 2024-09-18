@@ -60,4 +60,4 @@ embed.set_image(url="attachment://allure_screenshot.png")
 
 webhook.add_embed(embed)
 
-webhook.execute()e
+webhook.execute()
