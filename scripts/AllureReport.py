@@ -26,8 +26,12 @@ data_text = data.text
 tempoDecorrido = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.widget__subtitle')))
 tempoDecorrido_text = tempoDecorrido.text
 
-qtdFalhas = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > div:nth-of-type(2) > div > div')))
-qtdFalhas_text = qtdFalhas.text
+try:
+    qtdFalhas = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > div:nth-of-type(2) > div > div')))
+    qtdFalhas_text = qtdFalhas.text
+except Exception as e:
+    qtdFalhas_text = "0"
+
 driver.save_screenshot("allure_screenshot.png")
 
 driver.quit()
