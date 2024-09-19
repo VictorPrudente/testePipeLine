@@ -25,11 +25,11 @@ def getElement(driver, selector, timeout=10):
         return None
 
 # Atributos para o Print do Discord
-porcentagem_text = getElement(driver, 'text[class="chart__caption"]')
-qtdTeste_text = getElement(driver, '.splash__title')
-data_text = getElement(driver, '.widget__title')
-tempoDecorrido_text = getElement(driver, '.widget__subtitle')
-qtdFalhas_text = getElement(driver, 'div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > div:nth-of-type(2) > div > div') or "0"
+porcentagem = getElement(driver, 'text[class="chart__caption"]')
+qtdTeste = getElement(driver, '.splash__title')
+data = getElement(driver, '.widget__title')
+tempoDecorrido = getElement(driver, '.widget__subtitle')
+qtdFalhas = getElement(driver, 'div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > div:nth-of-type(2) > div > div') or "0"
 
 
 # Tira o print
@@ -52,7 +52,7 @@ embed.set_color("00FF00" if porcentagem == "100%" else "FF0000")
 # Atributos da print
 embed.add_embed_field("Quantidade de teste", qtdTeste, False)
 
-if qtdFalhas_text != "0":
+if qtdFalhas != "0":
     embed.add_embed_field("Falhas", qtdFalhas, False)
 
 tempo_decorrido_match = re.search(r"\((.*?)\)", tempoDecorrido)
