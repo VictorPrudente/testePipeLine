@@ -6,7 +6,7 @@ on:
   schedule:
     - cron: '0 12 * * *'
     - cron: '0 17 * * *'
-    - cron: '35 18 * * *'
+    - cron: '45 18 * * *'
 
 env:
   PIPELINE_NAME: ${{ github.workflow }}
