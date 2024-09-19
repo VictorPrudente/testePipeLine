@@ -17,21 +17,11 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      cache-key: ${{ steps.cache.outputs.cache-key }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
-
       - name: Cache Maven
-        id: cache
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
@@ -39,41 +29,37 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
   test-HealthCheck:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: zulu
-          java-version: 17
+      - uses: actions/checkout@v4
 
       - name: Run Health-Check Tests
         run: mvn test -Dgroups=${{ env.TAG_HEALTH_CHECK }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
+
       - name: Upload Allure reports
         uses: actions/upload-artifact@v4
         with:
           name: allure-report-health-check
           path: ${{ env.ALLURE_RESULTS }}
-          retention-days: 30
 
   test-Contrato:
     needs: test-HealthCheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: zulu
-          java-version: 17
+      - uses: actions/checkout@v4
 
       - name: Run Contract Tests
         run: mvn test -Dgroups=${{ env.TAG_CONTRATO }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
+
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
@@ -85,16 +71,11 @@ jobs:
     needs: test-Contrato
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: zulu
-          java-version: 17
+      - uses: actions/checkout@v4
 
       - name: Run Functional Tests
         run: mvn test -Dgroups=${{ env.TAG_FUNCIONAL }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
+
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
@@ -107,16 +88,11 @@ jobs:
     needs: test-Funcional
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: zulu
-          java-version: 17
+      - uses: actions/checkout@v4
 
       - name: Run Acceptance Tests
         run: mvn test -Dgroups=${{ env.TAG_ACEITACAO }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
+
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
