@@ -1,11 +1,11 @@
-name: ${{ env.PIPELINE_NAME }}
+name: Relatório de testes API Provas
 
 on: 
   push:
   workflow_dispatch:
 
 env:
-  PIPELINE_NAME: "Relatório de testes API Provas"
+  PIPELINE_NAME: ${{ github.workflow }}
   ALLURE_RESULTS: allure-results
   DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
   REPORT_URL: ${{ secrets.REPORT_URL }}
@@ -212,4 +212,4 @@ jobs:
 
     - name: Run Python script with webhook key
       run: |
-        python scripts/AllureReport.py
+        python scripts/allure-report.py
