@@ -170,6 +170,7 @@ jobs:
       - name: Start Allure Report and Ngrok Tunnel
         run: |
           nohup allure serve allure-results &  # Start Allure report server in the background
+          ngrok authtoken ${{ secrets.NGROK_TOKEN }}  # Authenticate ngrok with authtoken
           nohup ngrok http 8080 > ngrok.log &  # Expose Allure on Ngrok
 
       - name: Get Ngrok Public URL
