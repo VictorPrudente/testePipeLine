@@ -167,11 +167,8 @@ jobs:
           echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
           sudo apt update && sudo apt install ngrok
 
-      - name: Install Allure
-        run: |
-          sudo apt-add-repository ppa:qameta/allure
-          sudo apt-get update
-          sudo apt-get install allure
+      - name: Install Allure via Snap
+        run: sudo snap install allure --classic
         
       - name: Start Allure Report and Ngrok Tunnel
         run: |
