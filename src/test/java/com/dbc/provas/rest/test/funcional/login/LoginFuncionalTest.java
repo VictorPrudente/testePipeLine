@@ -27,10 +27,9 @@ public class LoginFuncionalTest extends LoginBase {
 
     @Test
     @DisplayName(CT_API_LOGIN_03)
+    @Tags({@Tag("Funcional"), @Tag("Cenário_Positivo")})
     @Description("Escrever algo")
     public void testLoginSuccess() {
-        Allure.label("tag", FUNCIONAL);
-        Allure.label("tag", CENARIO_POSITIVO);
 
         step("Validando o login na aplicação ao utilizar dados válidos", () ->
                 loginClient.login(loginRequest)
