@@ -1,47 +1,177 @@
-name: Pipeline QA API Provas
+name: ${{ env.PIPELINE_NAME }}
 
-on:
-  pull_request:
-    branches:
-      - main
-      - develop
+on: 
+  push:
   workflow_dispatch:
 
+env:
+  PIPELINE_NAME: "Relatório de testes API Provas"
+  ALLURE_RESULTS: allure-results
+  DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+  REPORT_URL: ${{ secrets.REPORT_URL }}
+  TAG_HEALTH_CHECK: "Health-Check"
+  TAG_CONTRATO: "Contrato"
+  TAG_FUNCIONAL: "Funcional"
+  TAG_ACEITACAO: "Aceitacao"
+
 jobs:
-
-  health_check:
-    name: Health Check
+  build:
     runs-on: ubuntu-latest
-
+    outputs:
+      cache-key: ${{ steps.cache.outputs.cache-key }}
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup JDK 17
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: maven
 
-      - name: Rodando testes de Health Check
-        run: mvn test -Dgroups="Health-Check"
-        continue-on-error: false
-        id: healthcheck
+      - name: Cache Maven
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
-  generate_report:
-    name: Generate Test Report
+  test-HealthCheck:
+    needs: build
     runs-on: ubuntu-latest
-    needs: health_check
-
     steps:
-      - name: Checkout gh-pages branch
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - name: Run Health-Check Tests
+        run: mvn test -Dgroups=${{ env.TAG_HEALTH_CHECK }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
+      - name: Upload Allure reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-health-check
+          path: ${{ env.ALLURE_RESULTS }}
+          retention-days: 30
+
+  test-Contrato:
+    needs: test-HealthCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - name: Run Contract Tests
+        run: mvn test -Dgroups=${{ env.TAG_CONTRATO }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-contract
+          path: ${{ env.ALLURE_RESULTS }}
+          retention-days: 30
+
+  test-Funcional:
+    needs: test-Contrato
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - name: Run Functional Tests
+        run: mvn test -Dgroups=${{ env.TAG_FUNCIONAL }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-functional
+          path: ${{ env.ALLURE_RESULTS }}
+          retention-days: 30
+          overwrite: 'true'
+
+  test-Aceitacao:
+    needs: test-Funcional
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - name: Run Acceptance Tests
+        run: mvn test -Dgroups=${{ env.TAG_ACEITACAO }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-acceptance
+          path: ${{ env.ALLURE_RESULTS }}
+          retention-days: 30
+          overwrite: 'true'
+
+  report:
+    runs-on: ubuntu-latest
+    needs: test-Aceitacao
+    steps:
+      - name: Download Allure reports from Health-Check
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report-health-check
+          path: allure-reports/health-check
+
+      - name: Download Allure reports from Contract
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report-contract
+          path: allure-reports/contract
+
+      - name: Download Allure reports from Functional
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report-functional
+          path: allure-reports/functional
+
+      - name: Download Allure reports from Acceptance
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report-acceptance
+          path: allure-reports/acceptance
+
+      - name: Copy Allure Reports to allure-results
+        run: |
+          mkdir -p allure-results
+          cp -r allure-reports/health-check/* allure-results
+          cp -r allure-reports/contract/* allure-results
+          cp -r allure-reports/functional/* allure-results
+          cp -r allure-reports/acceptance/* allure-results
+
+      - name: Load test report history
         uses: actions/checkout@v3
+        if: always()
+        continue-on-error: true
         with:
           ref: gh-pages
           path: gh-pages
 
       - name: Build test report
         uses: simple-elf/allure-report-action@v1.7
+        if: always()
         with:
           gh_pages: gh-pages
           allure_history: allure-history
@@ -49,39 +179,37 @@ jobs:
 
       - name: Edit index.html to include GitHub Run ID
         run: |
-          echo "<!DOCTYPE html><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"0; URL=https://teste-pipe-line.vercel.app/${GITHUB_RUN_NUMBER}/index.html\">" | sudo tee allure-history/index.html > /dev/null
+          echo "<!DOCTYPE html><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"0; URL=${{secrets.REPORT_URL}}/${GITHUB_RUN_NUMBER}/index.html\">" | sudo tee allure-history/index.html > /dev/null
           echo "<meta http-equiv=\"Pragma\" content=\"no-cache\"><meta http-equiv=\"Expires\" content=\"0\">" | sudo tee -a allure-history/index.html > /dev/null
         if: always()
-      - name: Debug index.html
+
+      - name: debug
         run: |
           cat allure-history/index.html
 
       - name: Publish test report
         uses: peaceiris/actions-gh-pages@v3
+        if: always()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: allure-history
 
-  python_test:
-    name: Run Python Tests
+  python-test:
     runs-on: ubuntu-latest
-    needs: health_check
-
+    needs: report
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
 
-      - name: Install dependencies
-        run: pip install -r scripts/requirements.txt
+    - name: Install dependencies
+      run: pip install -r scripts/requirements.txt
 
-      - name: Run Python script with webhook key
-        run: |
-          python scripts/AllureReport.py
-        env:
-          WEBHOOK_KEY: ${{ secrets.WEBHOOK_KEY }}
+    - name: Run Python script with webhook key
+      run: |
+        python scripts/AllureReport.py
