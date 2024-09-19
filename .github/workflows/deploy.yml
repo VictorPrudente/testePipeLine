@@ -1,4 +1,4 @@
-name: Relatório de testes API Provas
+name: Relatorio de testes API Provas
 
 on: 
   push:
@@ -161,20 +161,31 @@ jobs:
           cp -r allure-reports/functional/* allure-results
           cp -r allure-reports/acceptance/* allure-results
 
-      - name: Install Ngrok
-        run: |
-          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
-          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
-          sudo apt update && sudo apt install ngrok
+      - name: Load test report history
+        uses: actions/checkout@v4
+        if: always()
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
 
-      - name: Install Allure via Snap
-        run: sudo snap install allure --classic
-        
-      - name: Start Allure Report and Ngrok Tunnel
+      - name: Build test report
+        uses: simple-elf/allure-report-action@v1.7
+        if: always()
+        with:
+          gh_pages: gh-pages
+          allure_history: allure-history
+          allure_results: allure-results
+
+      - name: Edit index.html to include GitHub Run ID
         run: |
-          nohup allure serve allure-results &  # Start Allure report server in the background
-          ngrok authtoken ${{ secrets.NGROK_TOKEN }}  # Authenticate ngrok with authtoken
-          nohup ngrok http 8080 > ngrok.log &  # Expose Allure on Ngrok
+          echo "<!DOCTYPE html><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"0; URL=${{secrets.REPORT_URL}}/${GITHUB_RUN_NUMBER}/index.html\">" | sudo tee allure-history/index.html > /dev/null
+          echo "<meta http-equiv=\"Pragma\" content=\"no-cache\"><meta http-equiv=\"Expires\" content=\"0\">" | sudo tee -a allure-history/index.html > /dev/null
+        if: always()
+
+      - name: debug
+        run: |
+          cat allure-history/index.html
 
       - name: Publish test report
         uses: peaceiris/actions-gh-pages@v4
@@ -183,7 +194,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: allure-history
-
 
   python-test:
     runs-on: ubuntu-latest
