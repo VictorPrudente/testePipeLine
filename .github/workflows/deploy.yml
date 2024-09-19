@@ -179,19 +179,14 @@ jobs:
           ngrok authtoken ${{ secrets.NGROK_TOKEN }}  # Authenticate ngrok with authtoken
           nohup ngrok http 8080 > ngrok.log &  # Expose Allure on Ngrok
 
-      - name: Get Ngrok Public URL
-        run: |
-          sleep 5  # Give Ngrok a few seconds to start
-          NGROK_URL=$(curl --silent http://127.0.0.1:4040/api/tunnels | jq -r .tunnels[0].public_url)
-          echo "Ngrok public URL: $NGROK_URL"
-          echo "NGROK_URL=$NGROK_URL" >> $GITHUB_ENV  # Set as an environment variable
+      - name: Publish test report
+        uses: peaceiris/actions-gh-pages@v4
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
 
-      - name: Post Ngrok URL to Discord Webhook
-        run: |
-          curl -H "Content-Type: application/json" \
-          -X POST \
-          -d "{\"content\": \"Allure Report available at: ${{ env.NGROK_URL }}\"}" \
-          ${{ secrets.DISCORD_WEBHOOK_URL }}
 
   python-test:
     runs-on: ubuntu-latest
