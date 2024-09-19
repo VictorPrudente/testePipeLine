@@ -161,39 +161,30 @@ jobs:
           cp -r allure-reports/functional/* allure-results
           cp -r allure-reports/acceptance/* allure-results
 
-      - name: Load test report history
-        uses: actions/checkout@v4
-        if: always()
-        continue-on-error: true
-        with:
-          ref: gh-pages
-          path: gh-pages
-
-      - name: Build test report
-        uses: simple-elf/allure-report-action@v1.7
-        if: always()
-        with:
-          gh_pages: gh-pages
-          allure_history: allure-history
-          allure_results: allure-results
-
-      - name: Edit index.html to include GitHub Run ID
+      - name: Install Ngrok
         run: |
-          echo "<!DOCTYPE html><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"0; URL=${{secrets.REPORT_URL}}/${GITHUB_RUN_NUMBER}/index.html\">" | sudo tee allure-history/index.html > /dev/null
-          echo "<meta http-equiv=\"Pragma\" content=\"no-cache\"><meta http-equiv=\"Expires\" content=\"0\">" | sudo tee -a allure-history/index.html > /dev/null
-        if: always()
-
-      - name: debug
+          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
+          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
+          sudo apt update && sudo apt install ngrok
+        
+      - name: Start Allure Report and Ngrok Tunnel
         run: |
-          cat allure-history/index.html
+          nohup allure serve allure-results &  # Start Allure report server in the background
+          nohup ngrok http 8080 > ngrok.log &  # Expose Allure on Ngrok
 
-      - name: Publish test report
-        uses: peaceiris/actions-gh-pages@v4
-        if: always()
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: allure-history
+      - name: Get Ngrok Public URL
+        run: |
+          sleep 5  # Give Ngrok a few seconds to start
+          NGROK_URL=$(curl --silent http://127.0.0.1:4040/api/tunnels | jq -r .tunnels[0].public_url)
+          echo "Ngrok public URL: $NGROK_URL"
+          echo "NGROK_URL=$NGROK_URL" >> $GITHUB_ENV  # Set as an environment variable
+
+      - name: Post Ngrok URL to Discord Webhook
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{\"content\": \"Allure Report available at: ${{ env.NGROK_URL }}\"}" \
+          ${{ secrets.DISCORD_WEBHOOK_URL }}
 
   python-test:
     runs-on: ubuntu-latest
