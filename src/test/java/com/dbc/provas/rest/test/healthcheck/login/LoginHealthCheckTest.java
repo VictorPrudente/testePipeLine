@@ -5,6 +5,7 @@ import com.dbc.provas.rest.test.base.LoginBase;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
+import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.junit.jupiter.api.*;
 
 import static com.dbc.provas.story.DisplayName.HEALTH_CHECK_LOGIN;
@@ -19,13 +20,17 @@ import static java.net.HttpURLConnection.HTTP_OK;
 @DisplayName(HEALTH_CHECK_LOGIN)
 public class LoginHealthCheckTest extends LoginBase {
 
+
     @BeforeAll
     public static void setUp() {
         loginRequest = LoginDataFactory.admLogin();
     }
 
     @Test
-    @Tags({@Tag("Health-Check"), @Tag("Cenário_Positivo")})
+    @Tags({
+            @Tag("Health-Check"),
+            @Tag("Cenário-Positivo")
+    })
     @DisplayName(CT_API_LOGIN_01)
     public void testHealthCheck() {
 
@@ -35,4 +40,6 @@ public class LoginHealthCheckTest extends LoginBase {
                     .statusCode(HTTP_OK);
         });
     }
+
+
 }

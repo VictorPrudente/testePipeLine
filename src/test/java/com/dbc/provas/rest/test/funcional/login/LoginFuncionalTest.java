@@ -2,14 +2,14 @@ package com.dbc.provas.rest.test.funcional.login;
 
 import com.dbc.provas.rest.test.base.LoginBase;
 import com.dbc.provas.utils.Manipulation;
-import io.qameta.allure.Description;
-import io.qameta.allure.Epic;
-import io.qameta.allure.Feature;
-import io.qameta.allure.Story;
+import io.qameta.allure.*;
 import org.junit.jupiter.api.*;
+import org.junitpioneer.jupiter.RetryingTest;
 
 import static com.dbc.provas.story.DisplayName.FUNCIONAL_LOGIN;
 import static com.dbc.provas.story.Feature.FEATURE_FUNCIONAL;
+import static com.dbc.provas.story.Tags.CENARIO_POSITIVO;
+import static com.dbc.provas.story.Tags.FUNCIONAL;
 import static com.dbc.provas.story.UserStories.*;
 import static io.qameta.allure.Allure.step;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -27,13 +27,14 @@ public class LoginFuncionalTest extends LoginBase {
 
     @Test
     @DisplayName(CT_API_LOGIN_03)
-    @Tags({@Tag("Funcional"), @Tag("Cenário_Positivo")})
     @Description("Escrever algo")
     public void testLoginSuccess() {
+        Allure.label("tag", FUNCIONAL);
+        Allure.label("tag", CENARIO_POSITIVO);
 
         step("Validando o login na aplicação ao utilizar dados válidos", () ->
                 loginClient.login(loginRequest)
                         .then()
-                        .statusCode(HTTP_OK));
+                            .statusCode(HTTP_OK));
     }
 }
