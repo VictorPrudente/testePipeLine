@@ -17,20 +17,22 @@ options.add_argument('--headless')
 driver = webdriver.Chrome(options=options)
 driver.get(base_url)
 
+
 # Metodo para pegar os atributos
-def getElement(driver, selector, timeout=10):
+def getElement(selector, timeout=10):
     try:
         return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.CSS_SELECTOR, selector))).text
-    except Exception as e:
+    except Exception:
         return None
 
-# Atributos para o Print do Discord
-porcentagem = getElement(driver, 'text[class="chart__caption"]')
-qtdTeste = getElement(driver, '.splash__title')
-data = getElement(driver, '.widget__title')
-tempoDecorrido = getElement(driver, '.widget__subtitle')
-qtdFalhas = getElement(driver, 'div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > div:nth-of-type(2) > div > div') or "0"
 
+# Atributos para o Print do Discord
+porcentagem = getElement('text[class="chart__caption"]')
+qtdTeste = getElement('.splash__title')
+data = getElement('.widget__title')
+tempoDecorrido = getElement('.widget__subtitle')
+qtdFalhas = getElement('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > '
+                       'div:nth-of-type(2) > div > div') or "0"
 
 # Tira o print
 driver.save_screenshot("allure_screenshot.png")
@@ -42,9 +44,9 @@ driver.quit()
 webhook = DiscordWebhook(url=webhook_key)
 
 embed = DiscordEmbed(
-        title="Relatório de testes API Provas",
-        description=f"[LINK VERCEL]({base_url})"
- )
+    title="Relatório de testes API Provas",
+    description=f"[LINK VERCEL]({base_url})"
+)
 
 # Cor da borda da print
 embed.set_color("00FF00" if porcentagem == "100%" else "FF0000")
