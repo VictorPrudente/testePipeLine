@@ -21,13 +21,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
-
       - name: Cache Maven
         uses: actions/cache@v4
         with:
@@ -36,11 +29,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
   test-HealthCheck:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
 
       - name: Run Health-Check Tests
         run: mvn test -Dgroups=${{ env.TAG_HEALTH_CHECK }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
@@ -56,6 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
 
       - name: Run Contract Tests
         run: mvn test -Dgroups=${{ env.TAG_CONTRATO }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
@@ -65,13 +67,13 @@ jobs:
         with:
           name: allure-report-contract
           path: ${{ env.ALLURE_RESULTS }}
-          retention-days: 30
 
   test-Funcional:
     needs: test-Contrato
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
 
       - name: Run Functional Tests
         run: mvn test -Dgroups=${{ env.TAG_FUNCIONAL }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
@@ -81,14 +83,13 @@ jobs:
         with:
           name: allure-report-functional
           path: ${{ env.ALLURE_RESULTS }}
-          retention-days: 30
-          overwrite: 'true'
 
   test-Aceitacao:
-    needs: test-Funcional
+    needs: test-Contrato
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
 
       - name: Run Acceptance Tests
         run: mvn test -Dgroups=${{ env.TAG_ACEITACAO }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
@@ -98,12 +99,10 @@ jobs:
         with:
           name: allure-report-acceptance
           path: ${{ env.ALLURE_RESULTS }}
-          retention-days: 30
-          overwrite: 'true'
 
   report:
     runs-on: ubuntu-latest
-    needs: test-Aceitacao
+    needs: [test-Funcional, test-Aceitacao]
     steps:
       - name: Download Allure reports from Health-Check
         uses: actions/download-artifact@v4
@@ -138,7 +137,7 @@ jobs:
           cp -r allure-reports/acceptance/* allure-results
 
       - name: Load test report history
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         if: always()
         continue-on-error: true
         with:
@@ -176,10 +175,10 @@ jobs:
     needs: report
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: '3.9'
 
