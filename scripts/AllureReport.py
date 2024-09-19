@@ -52,8 +52,10 @@ driver.quit()
 webhook = DiscordWebhook(url=webhook_key)
 
 embed = DiscordEmbed(
-    title=f"[Relatório de testes API Provas]({base_url})"
+    title="Relatório de testes API Provas"
 )
+
+embed.set_url(f"{base_url}")
 
 # Cor da borda da print
 embed.set_color("00FF00" if porcentagem == "100%" else "FF0000")
