@@ -18,6 +18,14 @@ driver = webdriver.Chrome(options=options)
 driver.get(base_url)
 
 
+# Desabilitar animações
+driver.execute_script("""
+    var style = document.createElement('style');
+    style.innerHTML = '* { transition: none !important; animation: none !important; }';
+    document.head.appendChild(style);
+""")
+
+
 # Metodo para pegar os atributos
 def getElement(selector, timeout=10):
     try:
@@ -44,8 +52,7 @@ driver.quit()
 webhook = DiscordWebhook(url=webhook_key)
 
 embed = DiscordEmbed(
-    title="Relatório de testes API Provas",
-    description=f"[LINK VERCEL]({base_url})"
+    title=f"[Relatório de testes API Provas]({base_url})"
 )
 
 # Cor da borda da print
