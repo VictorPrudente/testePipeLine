@@ -69,10 +69,16 @@ jobs:
         run: |
           if [ "${{ steps.health_check.outcome }}" == "success" ]; then
             echo "status=true" >> ${{ env.STATUS_HEALTH }}
-            echo "status=true" >> ${{$GITHUB_OUTPUT}}
           else
             echo "status=false" >> ${{ env.STATUS_HEALTH }}
-            echo "status=false" >> ${{$GITHUB_OUTPUT}}
+          fi
+
+      - name: Set output based on results number two
+        run: |
+          if [ "${{ steps.health_check.outcome }}" == "success" ]; then
+            echo "status=true" >> $GITHUB_OUTPUT
+          else
+            echo "status=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Upload Allure reports
@@ -106,11 +112,18 @@ jobs:
       - name: Set output based on results
         id: set_output
         run: |
-          if [ "${{ steps.contract_check.outcome }}" == "success" ]; then
-            echo "status=true" >> ${{ env.STATUS_HEALTH }}
+          if [ "${{ steps.health_check.outcome }}" == "success" ]; then
+            echo "status=true" >> ${{ env.STATUS_CONTRATO }}
+          else
+            echo "status=false" >> ${{ env.STATUS_CONTRATO }}
+          fi
+
+      - name: Set output based on results number two
+        id: set_output_contract
+        run: |
+          if [ "${{ steps.health_check.outcome }}" == "success" ]; then
             echo "status=true" >> $GITHUB_OUTPUT
           else
-            echo "status=false" >> ${{ env.STATUS_HEALTH }}
             echo "status=false" >> $GITHUB_OUTPUT
           fi
           
