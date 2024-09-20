@@ -47,7 +47,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     outputs:
-      health_status: ${{ steps.set_output_health.outputs.status }}
+      health_status: ${{ steps.set_output.outputs.status }}
 
     steps:
       - uses: actions/checkout@v4
