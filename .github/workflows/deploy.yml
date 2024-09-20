@@ -1,12 +1,11 @@
 name: Relatorio de testes API Provas
 
 on: 
-  push:
   workflow_dispatch:
-  schedule:
-    - cron: '0 12 * * *'
-    - cron: '0 17 * * *'
-    - cron: '0 21 * * *'
+  push:
+    branches:
+      - hml
+      - feat/pipeline
 
 env:
   PIPELINE_NAME: ${{ github.workflow }}
@@ -21,41 +20,42 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      cache_key: ${{ steps.cache.outputs.cache_key }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Cache Maven
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: maven
+
+      - name: Cache Maven
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven
 
   test-HealthCheck:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: maven
 
       - name: Run Health-Check Tests
         run: mvn test -Dgroups=${{ env.TAG_HEALTH_CHECK }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
-
       - name: Upload Allure reports
         uses: actions/upload-artifact@v4
         with:
@@ -67,16 +67,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: maven
 
       - name: Run Contract Tests
         run: mvn test -Dgroups=${{ env.TAG_CONTRATO }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
-
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
@@ -84,20 +84,20 @@ jobs:
           path: ${{ env.ALLURE_RESULTS }}
 
   test-Funcional:
-    needs: test-Contrato
+    needs: [test-HealthCheck, test-Contrato]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: maven
 
       - name: Run Functional Tests
         run: mvn test -Dgroups=${{ env.TAG_FUNCIONAL }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
-
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
@@ -105,20 +105,20 @@ jobs:
           path: ${{ env.ALLURE_RESULTS }}
 
   test-Aceitacao:
-    needs: test-Contrato
+    needs: [test-HealthCheck, test-Contrato]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: maven
 
       - name: Run Acceptance Tests
         run: mvn test -Dgroups=${{ env.TAG_ACEITACAO }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
-
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
@@ -127,7 +127,7 @@ jobs:
 
   report:
     runs-on: ubuntu-latest
-    needs: [test-Funcional, test-Aceitacao]
+    needs: [test-Aceitacao, test-Funcional]
     steps:
       - name: Download Allure reports from Health-Check
         uses: actions/download-artifact@v4
@@ -199,17 +199,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: report
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.9'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
 
-    - name: Install dependencies
-      run: pip install -r scripts/requirements.txt
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
 
-    - name: Run Python script with webhook key
-      run: |
-        python scripts/allure-report.py
+      - name: Run Python script with webhook key
+        run: |
+          python scripts/allure-report.py
