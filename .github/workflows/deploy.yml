@@ -44,7 +44,6 @@ jobs:
   test-HealthCheck:
     needs: build
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -56,9 +55,13 @@ jobs:
           cache: maven
 
       - name: Run Health-Check Tests
-        continue-on-error: true
         run: mvn test -Dgroups=${{ env.TAG_HEALTH_CHECK }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
-      
+        continue-on-error: true
+
+      - name: Capture Test Result
+        run: |
+          echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
+        
       - name: Upload Allure reports
         uses: actions/upload-artifact@v4
         with:
@@ -68,9 +71,14 @@ jobs:
   test-Contrato:
     needs: test-HealthCheck
     runs-on: ubuntu-latest
-    if: ${{ success() }} 
-    continue-on-error: true
+    
     steps:
+      - name: Verificar se Health-Check falhou
+        run: |
+          if [ $TEST_EXIT_CODE -ne 0 ]; then
+            echo "Health-Check falhou. Interrompendo a pipeline."
+            exit 1
+          fi
       - uses: actions/checkout@v4
 
       - name: Set up JDK 17
