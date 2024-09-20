@@ -45,11 +45,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     outputs:
-      health_check_tests: ${{ steps.healthcheck_status.outputs.health_check_success }}
-    
+      health_check_success: ${{ steps.health_check_result.outcome }}
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -61,13 +60,14 @@ jobs:
         run: mvn test -Dgroups=${{ env.TAG_HEALTH_CHECK }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
         continue-on-error: true
 
-      - name: Set Health-Check Status
+      - name: Set Health-Check Failure Status
         id: healthcheck_status
         run: |
-          if [ "${{ steps.health_check.outcome }}" == "success" ]; then
+          if [ ${{ steps.health_check.outcome }} == 'failure' ]; then
             echo "health_check_success=true" >> $GITHUB_ENV
           else
             echo "health_check_success=false" >> $GITHUB_ENV
+          fi
         
       - name: Upload Allure reports
         uses: actions/upload-artifact@v4
@@ -77,7 +77,7 @@ jobs:
 
   test-Contrato:
     needs: test-HealthCheck
-    if: env.health_check_tests
+    if: ${{ needs.test-HealthCheck.outputs.health_check_success == 'success' }}
     runs-on: ubuntu-latest
     
     steps:
@@ -101,7 +101,7 @@ jobs:
   test-Funcional:
     needs: [test-HealthCheck, test-Contrato]
     runs-on: ubuntu-latest
-    if: env.health_check_tests
+    if: ${{ success() }} 
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -124,7 +124,7 @@ jobs:
   test-Aceitacao:
     needs: [test-HealthCheck, test-Contrato]
     runs-on: ubuntu-latest
-    if: env.health_check_tests
+    if: ${{ success() }} 
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -151,28 +151,27 @@ jobs:
     steps:
 
       - name: Download Allure reports from Health-Check
-        if: env.health_check_tests
         uses: actions/download-artifact@v4
         with:
           name: allure-report-health-check
           path: allure-reports/health-check
 
       - name: Download Allure reports from Contract
-        if: env.health_check_tests
+        if: ${{ needs.test-HealthCheck.outputs.health_check_success == 'success' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-contract
           path: allure-reports/contract
 
       - name: Download Allure reports from Functional
-        if: env.health_check_tests
+        if: ${{ needs.test-HealthCheck.outputs.health_check_success == 'success' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-functional
           path: allure-reports/functional
 
       - name: Download Allure reports from Acceptance
-        if: env.health_check_tests
+        if: ${{ needs.test-HealthCheck.outputs.health_check_success == 'success' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-acceptance
