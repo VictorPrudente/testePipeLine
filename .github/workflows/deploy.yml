@@ -16,6 +16,7 @@ env:
   TAG_CONTRATO: "Contrato"
   TAG_FUNCIONAL: "Funcional"
   TAG_ACEITACAO: "Aceitacao"
+  STATUS_HEALTH: true
 
 jobs:
   build:
@@ -66,9 +67,9 @@ jobs:
         id: set_output_health
         run: |
           if [ "${{ steps.health_check.outcome }}" == "success" ]; then
-            echo "status=true" >> $GITHUB_OUTPUT
+            echo "status=true" >> ${{ env.STATUS_HEALTH }}
           else
-            echo "status=false" >> $GITHUB_OUTPUT
+            echo "status=false" >> ${{ env.STATUS_HEALTH }}
           fi
 
       - name: Upload Allure reports
@@ -171,6 +172,10 @@ jobs:
         with:
           name: allure-report-health-check
           path: allure-reports/health-check
+
+      - name: Debug Health Status
+        run: 
+          "echo Health Status: ${{ env.STATUS_HEALTH }}"
 
       - name: Download Allure reports from Contract
         if: ${{ test-HealthCheck.outputs.health_status == 'true' }}
