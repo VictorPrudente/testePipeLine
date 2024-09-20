@@ -45,10 +45,11 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     outputs:
-      health_check_success: ${{ steps.health_check_result.outcome }}
+      health_check_tests: ${{ steps.healthcheck_status.outputs.health_check_success }}
+    
     steps:
       - uses: actions/checkout@v4
-
+      
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -60,14 +61,13 @@ jobs:
         run: mvn test -Dgroups=${{ env.TAG_HEALTH_CHECK }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
         continue-on-error: true
 
-      - name: Set Health-Check Failure Status
+      - name: Set Health-Check Status
         id: healthcheck_status
         run: |
-          if [ ${{ steps.health_check.outcome }} == 'failure' ]; then
-            echo "health_check_success=true" >> $GITHUB_ENV
+          if [ "${{ steps.health_check.outcome }}" == "success" ]; then
+            echo "health_check_tests=true" >> $GITHUB_ENV
           else
-            echo "health_check_success=false" >> $GITHUB_ENV
-          fi
+            echo "health_check_tests=false" >> $GITHUB_ENV
         
       - name: Upload Allure reports
         uses: actions/upload-artifact@v4
@@ -77,16 +77,10 @@ jobs:
 
   test-Contrato:
     needs: test-HealthCheck
-    if: ${{ needs.test-HealthCheck.outputs.health_check_success == 'success' }}
+    if: ${{ env.health_check_tests }}
     runs-on: ubuntu-latest
     
     steps:
-      - name: Verificar se Health-Check falhou
-        run: |
-          if [ $TEST_EXIT_CODE -ne 0 ]; then
-            echo "Health-Check falhou. Interrompendo a pipeline."
-            exit 1
-          fi
       - uses: actions/checkout@v4
 
       - name: Set up JDK 17
@@ -155,47 +149,30 @@ jobs:
     needs: [test-Funcional, test-Aceitacao]
     if: always() 
     steps:
-      - name: Verificar se o relatório Health-Check está presente
-        id: health_check_exists
-        run: |
-          if curl --fail --head "${{ github.event.repository.url }}/actions/artifacts/${{ needs.test-HealthCheck.outputs.artifact_id }}/zip"; then
-            echo "health_check_exists=true" >> $GITHUB_ENV
-          else
-            echo "health_check_exists=false" >> $GITHUB_ENV
-          fi
-
-      - name: Verificar se o relatório Contract está presente
-        id: contract_exists
-        run: |
-          if curl --fail --head "${{ github.event.repository.url }}/actions/artifacts/${{ needs.test-Contrato.outputs.artifact_id }}/zip"; then
-            echo "contract_exists=true" >> $GITHUB_ENV
-          else
-            echo "contract_exists=false" >> $GITHUB_ENV
-          fi
 
       - name: Download Allure reports from Health-Check
-        if: env.health_check_exists == 'true'
+        if: ${{ env.health_check_tests }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-health-check
           path: allure-reports/health-check
 
       - name: Download Allure reports from Contract
-        if: env.contract_exists == 'true'
+        if: ${{ env.health_check_tests }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-contract
           path: allure-reports/contract
 
       - name: Download Allure reports from Functional
-        if: always() 
+        if: ${{ env.health_check_tests }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-functional
           path: allure-reports/functional
 
       - name: Download Allure reports from Acceptance
-        if: always()
+        if: ${{ env.health_check_tests }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-acceptance
