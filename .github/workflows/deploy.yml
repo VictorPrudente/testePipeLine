@@ -172,9 +172,6 @@ jobs:
           name: allure-report-health-check
           path: allure-reports/health-check
 
-      - name: Debug Health Status
-        run: echo "Health Status: ${{ needs.test-HealthCheck.outputs.health_status }}"
-
       - name: Download Allure reports from Contract
         if: ${{ test-HealthCheck.outputs.health_status == 'true' }}
         uses: actions/download-artifact@v4
