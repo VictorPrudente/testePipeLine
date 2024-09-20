@@ -115,9 +115,9 @@ jobs:
           path: ${{ env.ALLURE_RESULTS }}
 
   test-Funcional:
-    needs: [test-HealthCheck, test-Contrato]
+    needs: test-Contrato
+    if: ${{ needs.test-Contrato.outputs.contract_status == 'true' }} 
     runs-on: ubuntu-latest
-    if: ${{ success() }} 
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -139,8 +139,8 @@ jobs:
 
   test-Aceitacao:
     needs: [test-HealthCheck, test-Contrato]
+    if: ${{ needs.test-Contrato.outputs.contract_status == 'true' }} 
     runs-on: ubuntu-latest
-    if: ${{ success() }} 
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
