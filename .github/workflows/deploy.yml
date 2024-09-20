@@ -162,7 +162,7 @@ jobs:
 
   report:
     runs-on: ubuntu-latest
-    needs: [test-Funcional, test-Aceitacao]
+    needs: [test-HealthCheck, test-Contrato, test-Funcional, test-Aceitacao]
     if: always() 
     steps:
 
