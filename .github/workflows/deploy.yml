@@ -78,6 +78,8 @@ jobs:
   test-Contrato:
     needs: test-HealthCheck
     if: ${{ needs.test-HealthCheck.outputs.health_check_success == 'success' }}
+    outputs:
+      contract_success: ${{ steps.contract_check.outcome }}
     runs-on: ubuntu-latest
     
     steps:
@@ -92,6 +94,15 @@ jobs:
 
       - name: Run Contract Tests
         run: mvn test -Dgroups=${{ env.TAG_CONTRATO }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
+        continue-on-error: true
+
+      - name: Set Contract Test Status
+        run: |
+          if [ ${{ steps.contract_check.outcome }} == 'success' ]; then
+            echo "contract_success=true"
+          else
+            echo "contract_success=false"
+        
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
@@ -157,21 +168,21 @@ jobs:
           path: allure-reports/health-check
 
       - name: Download Allure reports from Contract
-        if: ${{ needs.test-HealthCheck.outputs.health_check_success == 'success' }}
+        if: ${{ needs.test-Contrato.outputs.health_check_success == 'success' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-contract
           path: allure-reports/contract
 
       - name: Download Allure reports from Functional
-        if: ${{ needs.test-HealthCheck.outputs.health_check_success == 'success' }}
+        if: ${{ needs.test-HealthCheck.outputs.contract_success == 'success' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-functional
           path: allure-reports/functional
 
       - name: Download Allure reports from Acceptance
-        if: ${{ needs.test-HealthCheck.outputs.health_check_success == 'success' }}
+        if: ${{ needs.test-HealthCheck.outputs.contract_success == 'success' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-acceptance
