@@ -62,9 +62,9 @@ jobs:
         id: healthcheck_status
         run: |
           if [ ${{ steps.health_check.outcome }} == 'failure' ]; then
-            echo "health_check_failed=true" >> $GITHUB_ENV
+            echo "health_check_success=true" >> $GITHUB_ENV
           else
-            echo "health_check_failed=false" >> $GITHUB_ENV
+            echo "health_check_success=false" >> $GITHUB_ENV
           fi
         
       - name: Upload Allure reports
@@ -75,7 +75,7 @@ jobs:
 
   test-Contrato:
     needs: test-HealthCheck
-    if: ${{ env.health_check_failed == 'false' }}
+    if: ${{ env.health_check_success == 'false' }}
     runs-on: ubuntu-latest
     
     steps:
