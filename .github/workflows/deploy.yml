@@ -65,7 +65,7 @@ jobs:
         continue-on-error: true
         
       - name: Set output based on results
-        id: set_output_health
+        id: set_output
         run: |
           if [ "${{ steps.health_check.outcome }}" == "success" ]; then
             echo "status=true" >> ${{ env.STATUS_HEALTH }}
