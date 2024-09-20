@@ -20,6 +20,12 @@ driver.execute_script("""
     var style = document.createElement('style');
     style.innerHTML = '* { transition: none !important; animation: none !important; }';
     document.head.appendChild(style);
+    // Optionally, also remove any inline styles that might conflict
+    var elements = document.querySelectorAll('*');
+    elements.forEach(function(element) {
+        element.style.transition = 'none';
+        element.style.animation = 'none';
+    });
 """)
 
 
