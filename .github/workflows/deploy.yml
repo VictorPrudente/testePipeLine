@@ -80,7 +80,7 @@ jobs:
 
   test-Contrato:
     needs: test-HealthCheck
-    if: ${{STATUS_HEALTH}} == 'true'
+    if: ${{ needs.test-HealthCheck.outputs.health_status == 'true' }} 
     runs-on: ubuntu-latest
     outputs:
       contract_status: ${{ steps.set_output.outputs.status }}
@@ -174,25 +174,24 @@ jobs:
           path: allure-reports/health-check
 
       - name: Debug Health Status
-        run: |
-          echo Health Status: ${{ env.STATUS_HEALTH }}
+        run: echo "Health Status: ${{ env.STATUS_HEALTH }}
 
       - name: Download Allure reports from Contract
-        if: ${{ needs.test-HealthCheck.outputs.health_status == 'true' }}
+        if: ${{ env.STATUS_HEALTH == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-contract
           path: allure-reports/contract
 
       - name: Download Allure reports from Functional
-        if: ${{ needs.test-HealthCheck.outputs.health_status == 'true' }}
+        if: ${{ test-HealthCheck.outputs.health_status == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-functional
           path: allure-reports/functional
 
       - name: Download Allure reports from Acceptance
-        if: ${{ needs.test-HealthCheck.outputs.health_status == 'true' }}
+        if: ${{ test-HealthCheck.outputs.health_status == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-acceptance
