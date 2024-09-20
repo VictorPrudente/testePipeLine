@@ -174,7 +174,8 @@ jobs:
 
       - name: Debug Health Status
         run: |
-          echo Health Status: ${{ env.STATUS_HEALTH }}
+          echo Health Status: ${{ needs.test-HealthCheck.outputs.health_status }}
+          echo Health Status: ${{ needs.test-Contrato.outputs.contract_status }}
 
       - name: Download Allure reports from Contract
         if: ${{ needs.test-HealthCheck.outputs.health_status == 'true' }}
