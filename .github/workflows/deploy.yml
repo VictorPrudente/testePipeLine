@@ -45,7 +45,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     outputs:
-      health_check_success: ${{ steps.health_check_result.outcome }}
+      health_status: ${{ steps.set_output_health.outputs.status }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -57,18 +58,19 @@ jobs:
           cache: maven
 
       - name: Run Health-Check Tests
+        id: health_check
         run: mvn test -Dgroups=${{ env.TAG_HEALTH_CHECK }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
         continue-on-error: true
-
-      - name: Set Health-Check Failure Status
-        id: healthcheck_status
-        run: |
-          if [ ${{ steps.health_check.outcome }} == 'failure' ]; then
-            echo "health_check_success=true" >> $GITHUB_ENV
-          else
-            echo "health_check_success=false" >> $GITHUB_ENV
-          fi
         
+      - name: Set output based on results
+        id: set_output_health
+        run: |
+          if [ "${{ steps.health_check.outcome }}" == "success" ]; then
+            echo "status=true" >> $GITHUB_OUTPUT
+          else
+            echo "status=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Upload Allure reports
         uses: actions/upload-artifact@v4
         with:
@@ -77,10 +79,10 @@ jobs:
 
   test-Contrato:
     needs: test-HealthCheck
-    if: ${{ needs.test-HealthCheck.outputs.health_check_success == 'success' }}
-    outputs:
-      contract_success: ${{ steps.contract_check.outcome }}
+    if: ${{ needs.test-HealthCheck.outputs.health_status == 'true' }} 
     runs-on: ubuntu-latest
+    outputs:
+      contract_status: ${{ steps.set_output.outputs.status }}
     
     steps:
       - uses: actions/checkout@v4
@@ -93,16 +95,19 @@ jobs:
           cache: maven
 
       - name: Run Contract Tests
+        id: contract_check
         run: mvn test -Dgroups=${{ env.TAG_CONTRATO }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
         continue-on-error: true
 
-      - name: Set Contract Test Status
+      - name: Set output based on results
+        id: set_output
         run: |
-          if [ ${{ steps.contract_check.outcome }} == 'success' ]; then
-            echo "contract_success=true"
+          if [ "${{ steps.contract_check.outcome }}" == "success" ]; then
+            echo "status=true" >> $GITHUB_OUTPUT
           else
-            echo "contract_success=false"
-        
+            echo "status=false" >> $GITHUB_OUTPUT
+          fi
+          
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
@@ -168,7 +173,7 @@ jobs:
           path: allure-reports/health-check
 
       - name: Download Allure reports from Contract
-        if: ${{ needs.test-Contrato.outputs.health_check_success == 'success' }}
+        if: ${{ needs.test-HealthCheck.outputs.health_status == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-contract
