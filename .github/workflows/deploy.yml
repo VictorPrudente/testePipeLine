@@ -65,9 +65,9 @@ jobs:
         id: healthcheck_status
         run: |
           if [ "${{ steps.health_check.outcome }}" == "success" ]; then
-            echo "health_check_tests=true" >> $GITHUB_ENV
+            echo "health_check_success=true" >> $GITHUB_ENV
           else
-            echo "health_check_tests=false" >> $GITHUB_ENV
+            echo "health_check_success=false" >> $GITHUB_ENV
         
       - name: Upload Allure reports
         uses: actions/upload-artifact@v4
