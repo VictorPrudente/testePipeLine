@@ -17,6 +17,7 @@ env:
   TAG_FUNCIONAL: "Funcional"
   TAG_ACEITACAO: "Aceitacao"
   STATUS_HEALTH: true
+  STATUS_CONTRATO: true
 
 jobs:
   build:
@@ -68,8 +69,10 @@ jobs:
         run: |
           if [ "${{ steps.health_check.outcome }}" == "success" ]; then
             echo "status=true" >> ${{ env.STATUS_HEALTH }}
+            echo "status=true" >> ${{$GITHUB_OUTPUT}}
           else
             echo "status=false" >> ${{ env.STATUS_HEALTH }}
+            echo "status=false" >> ${{$GITHUB_OUTPUT}}
           fi
 
       - name: Upload Allure reports
@@ -80,7 +83,7 @@ jobs:
 
   test-Contrato:
     needs: test-HealthCheck
-    if: ${{ env.STATUS_HEALTH == 'true' }}
+    if: ${{ needs.test-HealthCheck.outputs.health_status == 'true' }} 
     runs-on: ubuntu-latest
     outputs:
       contract_status: ${{ steps.set_output.outputs.status }}
@@ -104,8 +107,10 @@ jobs:
         id: set_output
         run: |
           if [ "${{ steps.contract_check.outcome }}" == "success" ]; then
+            echo "status=true" >> ${{ env.STATUS_HEALTH }}
             echo "status=true" >> $GITHUB_OUTPUT
           else
+            echo "status=false" >> ${{ env.STATUS_HEALTH }}
             echo "status=false" >> $GITHUB_OUTPUT
           fi
           
@@ -185,14 +190,14 @@ jobs:
           path: allure-reports/contract
 
       - name: Download Allure reports from Functional
-        if: ${{ env.STATUS_HEALTH == 'true' }}
+        if: ${{ env.STATUS_CONTRATO == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-functional
           path: allure-reports/functional
 
       - name: Download Allure reports from Acceptance
-        if: ${{ env.STATUS_HEALTH == 'true' }}
+        if: ${{ env.STATUS_CONTRATO == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-acceptance
