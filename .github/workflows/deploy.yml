@@ -134,7 +134,7 @@ jobs:
 
   report:
     runs-on: ubuntu-latest
-    needs: [test-HealthCheck, test-Contrato]
+    needs: [test-Funcional, test-Aceitacao]
     if: always() 
     steps:
       - name: Verificar se o relatório Health-Check está presente
