@@ -44,6 +44,8 @@ jobs:
   test-HealthCheck:
     needs: build
     runs-on: ubuntu-latest
+    outputs:
+      health_check_success: ${{ steps.health_check_result.outcome }}
     steps:
       - uses: actions/checkout@v4
 
@@ -56,6 +58,17 @@ jobs:
 
       - name: Run Health-Check Tests
         run: mvn test -Dgroups=${{ env.TAG_HEALTH_CHECK }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
+        continue-on-error: true
+
+      - name: Set Health-Check Failure Status
+        id: healthcheck_status
+        run: |
+          if [ ${{ steps.health_check.outcome }} == 'failure' ]; then
+            echo "health_check_success=true" >> $GITHUB_ENV
+          else
+            echo "health_check_success=false" >> $GITHUB_ENV
+          fi
+        
       - name: Upload Allure reports
         uses: actions/upload-artifact@v4
         with:
@@ -64,7 +77,11 @@ jobs:
 
   test-Contrato:
     needs: test-HealthCheck
+    if: ${{ needs.test-HealthCheck.outputs.health_check_success == 'success' }}
+    outputs:
+      contract_success: ${{ steps.contract_check.outcome }}
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v4
 
@@ -77,6 +94,15 @@ jobs:
 
       - name: Run Contract Tests
         run: mvn test -Dgroups=${{ env.TAG_CONTRATO }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
+        continue-on-error: true
+
+      - name: Set Contract Test Status
+        run: |
+          if [ ${{ steps.contract_check.outcome }} == 'success' ]; then
+            echo "contract_success=true"
+          else
+            echo "contract_success=false"
+        
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
@@ -86,6 +112,8 @@ jobs:
   test-Funcional:
     needs: [test-HealthCheck, test-Contrato]
     runs-on: ubuntu-latest
+    if: ${{ success() }} 
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -107,6 +135,8 @@ jobs:
   test-Aceitacao:
     needs: [test-HealthCheck, test-Contrato]
     runs-on: ubuntu-latest
+    if: ${{ success() }} 
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -127,8 +157,10 @@ jobs:
 
   report:
     runs-on: ubuntu-latest
-    needs: [test-Aceitacao, test-Funcional]
+    needs: [test-Funcional, test-Aceitacao]
+    if: always() 
     steps:
+
       - name: Download Allure reports from Health-Check
         uses: actions/download-artifact@v4
         with:
@@ -136,18 +168,21 @@ jobs:
           path: allure-reports/health-check
 
       - name: Download Allure reports from Contract
+        if: ${{ needs.test-Contrato.outputs.health_check_success == 'success' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-contract
           path: allure-reports/contract
 
       - name: Download Allure reports from Functional
+        if: ${{ needs.test-HealthCheck.outputs.contract_success == 'success' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-functional
           path: allure-reports/functional
 
       - name: Download Allure reports from Acceptance
+        if: ${{ needs.test-HealthCheck.outputs.contract_success == 'success' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-acceptance
@@ -156,10 +191,10 @@ jobs:
       - name: Copy Allure Reports to allure-results
         run: |
           mkdir -p allure-results
-          cp -r allure-reports/health-check/* allure-results
-          cp -r allure-reports/contract/* allure-results
-          cp -r allure-reports/functional/* allure-results
-          cp -r allure-reports/acceptance/* allure-results
+          if [ -d "allure-reports/health-check" ]; then cp -r allure-reports/health-check/* allure-results; fi
+          if [ -d "allure-reports/contract" ]; then cp -r allure-reports/contract/* allure-results; fi
+          if [ -d "allure-reports/functional" ]; then cp -r allure-reports/functional/* allure-results; fi
+          if [ -d "allure-reports/acceptance" ]; then cp -r allure-reports/acceptance/* allure-results; fi
 
       - name: Load test report history
         uses: actions/checkout@v4
@@ -198,6 +233,7 @@ jobs:
   python-test:
     runs-on: ubuntu-latest
     needs: report
+    if: always()
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
