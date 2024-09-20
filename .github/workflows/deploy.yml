@@ -44,6 +44,8 @@ jobs:
   test-HealthCheck:
     needs: build
     runs-on: ubuntu-latest
+    outputs:
+      health_check_success: ${{ steps.health_check_result.outcome }}
     steps:
       - uses: actions/checkout@v4
 
