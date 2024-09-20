@@ -173,27 +173,24 @@ jobs:
           path: allure-reports/health-check
 
       - name: Debug Health Status
-        run: |
-          health_status="${{ needs.test-HealthCheck.outputs.health_status }}"
-          echo "Health Status: $health_status"
-
+        run: echo "Health Status: ${{ needs.test-HealthCheck.outputs.health_status }}"
 
       - name: Download Allure reports from Contract
-        if: ${{ needs.test-HealthCheck.outputs.health_status == 'true' }}
+        if: ${{ test-HealthCheck.outputs.health_status == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-contract
           path: allure-reports/contract
 
       - name: Download Allure reports from Functional
-        if: ${{ needs.test-HealthCheck.outputs.health_status == 'true' }}
+        if: ${{ test-HealthCheck.outputs.health_status == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-functional
           path: allure-reports/functional
 
       - name: Download Allure reports from Acceptance
-        if: ${{ needs.test-HealthCheck.outputs.health_status == 'true' }}
+        if: ${{ test-HealthCheck.outputs.health_status == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-acceptance
