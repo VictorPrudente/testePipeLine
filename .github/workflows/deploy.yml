@@ -119,7 +119,6 @@ jobs:
           fi
 
       - name: Set output based on results number two
-        id: set_output
         run: |
           if [ "${{ steps.contract_check.outcome }}" == "success" ]; then
             echo "status=true" >> ${{ env.STATUS_CONTRATO }}
