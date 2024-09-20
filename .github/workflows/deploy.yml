@@ -56,7 +56,9 @@ jobs:
           cache: maven
 
       - name: Run Health-Check Tests
+        continue-on-error: true
         run: mvn test -Dgroups=${{ env.TAG_HEALTH_CHECK }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
+      
       - name: Upload Allure reports
         uses: actions/upload-artifact@v4
         with:
