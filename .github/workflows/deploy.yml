@@ -192,7 +192,7 @@ jobs:
           path: allure-reports/functional
 
       - name: Download Allure reports from Acceptance
-        if: ${{ test-HealthCheck.outputs.health_status == 'true' }}
+        if: ${{ env.STATUS_HEALTH == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-acceptance
