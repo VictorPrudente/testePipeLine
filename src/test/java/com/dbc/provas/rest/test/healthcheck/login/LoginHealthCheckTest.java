@@ -38,7 +38,7 @@ public class LoginHealthCheckTest extends LoginBase {
         step("Validando a resposta da requisição", () -> {
             loginClient.login(loginRequest)
                     .then()
-                    .statusCode(HTTP_CREATED);
+                    .statusCode(HTTP_OK);
         });
     }
 

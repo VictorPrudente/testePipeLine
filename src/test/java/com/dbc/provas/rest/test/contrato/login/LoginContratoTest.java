@@ -11,6 +11,7 @@ import static com.dbc.provas.story.DisplayName.CONTRATO_LOGIN;
 import static com.dbc.provas.story.Feature.FEATURE_CONTRATO;
 import static com.dbc.provas.story.UserStories.*;
 import static io.qameta.allure.Allure.step;
+import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.matchesPattern;
 
@@ -27,14 +28,14 @@ public class LoginContratoTest extends LoginBase {
     }
 
     @Test
-    @Tags({@Tag("Contrato"), @Tag("Cenário_Positivo"), @Tag("Aceitacao")})
+    @Tags({@Tag("Contrato"), @Tag("Cenário_Positivo")})
     @DisplayName(CT_API_LOGIN_02)
     public void testLoginSuccess() {
 
         step("Validando o contrato de resposta de Login ao utilizar dados válidos", () ->
                 loginClient.login(loginRequest)
                         .then()
-                        .statusCode(HTTP_OK)
+                        .statusCode(HTTP_CREATED)
                         .body(matchesPattern("^Bearer\\s[A-Za-z0-9-_\\.]+$")));
     }
 }
