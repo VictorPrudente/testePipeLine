@@ -180,14 +180,14 @@ jobs:
           path: allure-reports/contract
 
       - name: Download Allure reports from Functional
-        if: ${{ needs.test-HealthCheck.outputs.contract_success == 'success' }}
+        if: ${{ needs.test-HealthCheck.outputs.health_status == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-functional
           path: allure-reports/functional
 
       - name: Download Allure reports from Acceptance
-        if: ${{ needs.test-HealthCheck.outputs.contract_success == 'success' }}
+        if: ${{ needs.test-HealthCheck.outputs.health_status == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: allure-report-acceptance
