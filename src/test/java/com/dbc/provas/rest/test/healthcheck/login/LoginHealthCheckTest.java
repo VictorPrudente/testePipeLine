@@ -12,6 +12,7 @@ import static com.dbc.provas.story.DisplayName.HEALTH_CHECK_LOGIN;
 import static com.dbc.provas.story.Feature.FEATURE_HEALTHCHECK;
 import static com.dbc.provas.story.UserStories.*;
 import static io.qameta.allure.Allure.step;
+import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 @Epic(EPIC_LOGIN)
@@ -37,7 +38,7 @@ public class LoginHealthCheckTest extends LoginBase {
         step("Validando a resposta da requisição", () -> {
             loginClient.login(loginRequest)
                     .then()
-                    .statusCode(HTTP_OK);
+                    .statusCode(HTTP_CREATED);
         });
     }
 
