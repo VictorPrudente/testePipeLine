@@ -1,0 +1,4 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Fri Sep 20 14:15:35 GMT 2024","Fri Sep 20 14:15:39 GMT 2024","4230","","1. HealthCheck - Login","","com.dbc.provas.rest.test.healthcheck.login.LoginHealthCheckTest","testHealthCheck","CT-API-01.01.01 - Validar Status do endpoint Login",""
+"passed","Fri Sep 20 14:16:31 GMT 2024","Fri Sep 20 14:16:35 GMT 2024","3503","","3. Funcional - Login","","com.dbc.provas.rest.test.funcional.login.LoginFuncionalTest","testLoginSuccess","CT-API-01.03.01 - Deveria logar com sucesso utilizando credenciais válidas","Escrever algo"
+"passed","Fri Sep 20 14:16:31 GMT 2024","Fri Sep 20 14:16:34 GMT 2024","3038","","2. Contrato - Login","","com.dbc.provas.rest.test.contrato.login.LoginContratoTest","testLoginSuccess","CT-API-01.02.01 - Teste de Contrato",""
