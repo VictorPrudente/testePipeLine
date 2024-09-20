@@ -80,7 +80,7 @@ jobs:
 
   test-Contrato:
     needs: test-HealthCheck
-    if: ${STATUS_HEALTH} == 'true'
+    if: ${env.STATUS_HEALTH} == 'true'
     runs-on: ubuntu-latest
     outputs:
       contract_status: ${{ steps.set_output.outputs.status }}
