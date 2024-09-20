@@ -16,6 +16,13 @@ driver = webdriver.Chrome(options=options)
 driver.set_window_size(1920,1080)
 driver.get(base_url)
 
+driver.execute_script("""
+    var style = document.createElement('style');
+    style.innerHTML = '* { transition: none !important; animation: none !important; }';
+    document.head.appendChild(style);
+""")
+
+
 def getElement(selector, timeout=10):
     try:
         return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.CSS_SELECTOR, selector))).text
@@ -28,12 +35,6 @@ data = getElement('.widget__title')
 tempoDecorrido = getElement('.widget__subtitle')
 qtdFalhas = getElement('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > '
                        'div:nth-of-type(2) > div > div') or "0"
-
-driver.execute_script("""
-    var style = document.createElement('style');
-    style.innerHTML = '* { transition: none !important; animation: none !important; }';
-    document.head.appendChild(style);
-""")
 
 driver.save_screenshot("allure_screenshot.png")
 
