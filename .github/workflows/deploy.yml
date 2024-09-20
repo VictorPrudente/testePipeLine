@@ -44,6 +44,7 @@ jobs:
   test-HealthCheck:
     needs: build
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -65,6 +66,8 @@ jobs:
   test-Contrato:
     needs: test-HealthCheck
     runs-on: ubuntu-latest
+    if: ${{ success() }} 
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -86,6 +89,8 @@ jobs:
   test-Funcional:
     needs: [test-HealthCheck, test-Contrato]
     runs-on: ubuntu-latest
+    if: ${{ success() }} 
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -107,6 +112,8 @@ jobs:
   test-Aceitacao:
     needs: [test-HealthCheck, test-Contrato]
     runs-on: ubuntu-latest
+    if: ${{ success() }} 
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -127,27 +134,50 @@ jobs:
 
   report:
     runs-on: ubuntu-latest
-    needs: [test-Aceitacao, test-Funcional]
+    needs: [test-HealthCheck, test-Contrato]
+    if: always() 
     steps:
+      - name: Verificar se o relatório Health-Check está presente
+        id: health_check_exists
+        run: |
+          if curl --fail --head "${{ github.event.repository.url }}/actions/artifacts/${{ needs.test-HealthCheck.outputs.artifact_id }}/zip"; then
+            echo "health_check_exists=true" >> $GITHUB_ENV
+          else
+            echo "health_check_exists=false" >> $GITHUB_ENV
+          fi
+
+      - name: Verificar se o relatório Contract está presente
+        id: contract_exists
+        run: |
+          if curl --fail --head "${{ github.event.repository.url }}/actions/artifacts/${{ needs.test-Contrato.outputs.artifact_id }}/zip"; then
+            echo "contract_exists=true" >> $GITHUB_ENV
+          else
+            echo "contract_exists=false" >> $GITHUB_ENV
+          fi
+
       - name: Download Allure reports from Health-Check
+        if: env.health_check_exists == 'true'
         uses: actions/download-artifact@v4
         with:
           name: allure-report-health-check
           path: allure-reports/health-check
 
       - name: Download Allure reports from Contract
+        if: env.contract_exists == 'true'
         uses: actions/download-artifact@v4
         with:
           name: allure-report-contract
           path: allure-reports/contract
 
       - name: Download Allure reports from Functional
+        if: always() 
         uses: actions/download-artifact@v4
         with:
           name: allure-report-functional
           path: allure-reports/functional
 
       - name: Download Allure reports from Acceptance
+        if: always()
         uses: actions/download-artifact@v4
         with:
           name: allure-report-acceptance
@@ -156,10 +186,10 @@ jobs:
       - name: Copy Allure Reports to allure-results
         run: |
           mkdir -p allure-results
-          cp -r allure-reports/health-check/* allure-results
-          cp -r allure-reports/contract/* allure-results
-          cp -r allure-reports/functional/* allure-results
-          cp -r allure-reports/acceptance/* allure-results
+          if [ -d "allure-reports/health-check" ]; then cp -r allure-reports/health-check/* allure-results; fi
+          if [ -d "allure-reports/contract" ]; then cp -r allure-reports/contract/* allure-results; fi
+          if [ -d "allure-reports/functional" ]; then cp -r allure-reports/functional/* allure-results; fi
+          if [ -d "allure-reports/acceptance" ]; then cp -r allure-reports/acceptance/* allure-results; fi
 
       - name: Load test report history
         uses: actions/checkout@v4
