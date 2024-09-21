@@ -16,7 +16,6 @@ env:
   TAG_CONTRATO: "Contrato"
   TAG_FUNCIONAL: "Funcional"
   TAG_ACEITACAO: "Aceitacao"
-  URL: ""
 
 jobs:
   build:
@@ -229,7 +228,7 @@ jobs:
           echo "URL=${{ secrets.REPORT_URL }}/${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
 
       - name: debug
-        run: echo "The report URL is ${{ steps.set-url.outputs.URL }}"
+        run: echo "The report URL is $URL"
 
       - name: Publish test report
         uses: peaceiris/actions-gh-pages@v4
@@ -246,6 +245,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: debug
+        run: echo "The report URL is $URL"
 
       - name: Set up Python
         uses: actions/setup-python@v5
