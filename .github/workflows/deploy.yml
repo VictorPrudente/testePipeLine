@@ -5,6 +5,7 @@ on:
     - cron: '50 11 * * *'
     - cron: '50 16 * * *'
     - cron: '50 20 * * *'
+    - cron: '00 14 * * *'
   workflow_dispatch:
   push:
     branches:
