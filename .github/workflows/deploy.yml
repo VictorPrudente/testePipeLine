@@ -9,6 +9,7 @@ on:
 
 env:
   PIPELINE_NAME: ${{ github.workflow }}
+  RUN_NUMBER: ${{ GITHUB_RUN_NUMBER }}
   ALLURE_RESULTS: allure-results
   DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
   REPORT_URL: ${{ secrets.REPORT_URL }}
@@ -222,13 +223,6 @@ jobs:
           echo "<!DOCTYPE html><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"0; URL=${{secrets.REPORT_URL}}/${GITHUB_RUN_NUMBER}/index.html\">" | sudo tee allure-history/index.html > /dev/null
           echo "<meta http-equiv=\"Pragma\" content=\"no-cache\"><meta http-equiv=\"Expires\" content=\"0\">" | sudo tee -a allure-history/index.html > /dev/null
         if: always()
-
-      - name: Set report URL as environment variable
-        run: |
-          echo "URL=${{ secrets.REPORT_URL }}/${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
-
-      - name: debug
-        run: echo "The report URL is $URL"
 
       - name: Publish test report
         uses: peaceiris/actions-gh-pages@v4
