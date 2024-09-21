@@ -35,7 +35,7 @@ public class LoginContratoTest extends LoginBase {
         step("Validando o contrato de resposta de Login ao utilizar dados válidos", () ->
                 loginClient.login(loginRequest)
                         .then()
-                        .statusCode(HTTP_CREATED)
+                        .statusCode(HTTP_OK)
                         .body(matchesPattern("^Bearer\\s[A-Za-z0-9-_\\.]+$")));
     }
 }
