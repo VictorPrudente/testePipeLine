@@ -1,0 +1,3 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Sat Sep 21 13:38:18 GMT 2024","Sat Sep 21 13:38:21 GMT 2024","3349","","1. HealthCheck - Login","","com.dbc.provas.rest.test.healthcheck.login.LoginHealthCheckTest","testHealthCheck","CT-API-01.01.01 - Validar Status do endpoint Login",""
+"failed","Sat Sep 21 13:38:44 GMT 2024","Sat Sep 21 13:38:48 GMT 2024","4028","","2. Contrato - Login","","com.dbc.provas.rest.test.contrato.login.LoginContratoTest","testLoginSuccess","CT-API-01.02.01 - Teste de Contrato",""
