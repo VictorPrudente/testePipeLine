@@ -5,6 +5,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import re
 import os
+import time
 
 webhook_key = os.getenv('DISCORD_WEBHOOK_URL')
 base_url = os.getenv('REPORT_URL') + "/" + os.getenv('RUN_NUMBER') + '/index.html'
@@ -16,6 +17,9 @@ driver = webdriver.Chrome(options=options)
 driver.set_window_size(1920,1080)
 driver.get(base_url)
 
+#Precisa no futuro trocar por alguma coisa q desabilite as animações. Faltou tempo e expertise, perdoem.
+time.sleep(10)
+
 def getElement(selector, timeout=10):
     try:
         return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.CSS_SELECTOR, selector))).text
@@ -24,16 +28,10 @@ def getElement(selector, timeout=10):
 
 porcentagem = getElement('text[class="chart__caption"]')
 qtdTeste = getElement('.splash__title')
-data = getElement('.widget__title')
-tempoDecorrido = getElement('.widget__subtitle')
+tempoDecorrido = getElement('div:nth-child(1) > h2 > div')
 qtdFalhas = getElement('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > '
                        'div:nth-of-type(2) > div > div') or "0"
 
-driver.execute_script("""
-    var style = document.createElement('style');
-    style.innerHTML = '* { transition: none !important; animation: none !important; }';
-    document.head.appendChild(style);
-""")
 
 driver.save_screenshot("allure_screenshot.png")
 
