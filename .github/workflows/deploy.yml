@@ -1,11 +1,16 @@
 name: Relatorio de testes API Provas
 
-on: 
+on:  
+  schedule:
+    - cron: '50 11 * * *'
+    - cron: '50 16 * * *'
+    - cron: '50 20 * * *'
   workflow_dispatch:
   push:
     branches:
       - hml
       - feat/pipeline
+      
 
 env:
   PIPELINE_NAME: ${{ github.workflow }}
