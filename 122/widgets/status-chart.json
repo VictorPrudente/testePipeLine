@@ -1,0 +1,1 @@
+[{"uid":"e2188e648698ead3","name":"CT-API-01.02.01 - Teste de Contrato","time":{"start":1726924716723,"stop":1726924719781,"duration":3058},"status":"failed","severity":"normal"},{"uid":"8edec44e3118da3f","name":"CT-API-01.01.01 - Validar Status do endpoint Login","time":{"start":1726924695986,"stop":1726924699066,"duration":3080},"status":"passed","severity":"normal"}]
