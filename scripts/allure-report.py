@@ -5,28 +5,22 @@ from selenium.webdriver.support.wait import WebDriverWait
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import re
 import os
+import time
 
 webhook_key = os.getenv('DISCORD_WEBHOOK_URL')
-base_url = os.getenv('REPORT_URL')
+base_url = os.getenv('REPORT_URL') + "/" + os.getenv('RUN_NUMBER') + '/index.html'
 title = os.getenv('PIPELINE_NAME')
 
 options = webdriver.ChromeOptions()
 options.add_argument('--headless')
 driver = webdriver.Chrome(options=options)
-driver.set_window_size(1920,1080)
+driver.set_window_size(1920, 1080)
+
+time.sleep(60)
+
 driver.get(base_url)
 
-driver.execute_script("""
-    var style = document.createElement('style');
-    style.innerHTML = '* { transition: none !important; animation: none !important; }';
-    document.head.appendChild(style);
-    // Optionally, also remove any inline styles that might conflict
-    var elements = document.querySelectorAll('*');
-    elements.forEach(function(element) {
-        element.style.transition = 'none';
-        element.style.animation = 'none';
-    });
-""")
+time.sleep(5)
 
 
 def getElement(selector, timeout=10):
@@ -35,12 +29,13 @@ def getElement(selector, timeout=10):
     except Exception:
         return None
 
+
 porcentagem = getElement('text[class="chart__caption"]')
 qtdTeste = getElement('.splash__title')
 data = getElement('.widget__title')
-tempoDecorrido = getElement('.widget__subtitle')
 qtdFalhas = getElement('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > '
                        'div:nth-of-type(2) > div > div') or "0"
+tempoDecorrido = getElement('div:nth-child(1) > h2 > div')
 
 driver.save_screenshot("allure_screenshot.png")
 
