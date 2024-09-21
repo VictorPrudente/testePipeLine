@@ -18,16 +18,23 @@ driver.get(base_url)
 
 driver.execute_script("""
     var style = document.createElement('style');
+    style.type = 'text/css';
     style.innerHTML = '* { transition: none !important; animation: none !important; }';
     document.head.appendChild(style);
-    // Optionally, also remove any inline styles that might conflict
+
     var elements = document.querySelectorAll('*');
     elements.forEach(function(element) {
-        element.style.transition = 'none';
-        element.style.animation = 'none';
+        element.style.transition = 'none !important';
+        element.style.animation = 'none !important';
+    });
+
+    var allElements = document.querySelectorAll('*');
+    allElements.forEach(function(element) {
+        element.style.animationDelay = '0s !important';
+        element.style.animationDuration = '0s !important';
+        element.style.animationIterationCount = '1 !important';
     });
 """)
-
 
 def getElement(selector, timeout=10):
     try:
