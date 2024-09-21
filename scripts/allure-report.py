@@ -7,7 +7,7 @@ import re
 import os
 
 webhook_key = os.getenv('DISCORD_WEBHOOK_URL')
-base_url = os.getenv('REPORT_URL')
+base_url = os.getenv('URL')
 title = os.getenv('PIPELINE_NAME')
 
 options = webdriver.ChromeOptions()
