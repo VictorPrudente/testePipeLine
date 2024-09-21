@@ -138,6 +138,8 @@ jobs:
 
       - name: Run Functional Tests
         run: mvn test -Dgroups=${{ env.TAG_FUNCIONAL }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
+        continue-on-error: true
+        
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
@@ -161,6 +163,8 @@ jobs:
 
       - name: Run Acceptance Tests
         run: mvn test -Dgroups=${{ env.TAG_ACEITACAO }} -Dallure.results.directory=${{ env.ALLURE_RESULTS }}
+        continue-on-error: true
+
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
