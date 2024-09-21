@@ -16,7 +16,7 @@ options.add_argument('--headless')
 driver = webdriver.Chrome(options=options)
 driver.set_window_size(1920, 1080)
 
-time.sleep(30)
+time.sleep(60)
 
 driver.get(base_url)
 
