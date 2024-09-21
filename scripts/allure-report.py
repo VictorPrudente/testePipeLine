@@ -35,6 +35,7 @@ qtdTeste = getElement('.splash__title')
 data = getElement('.widget__title')
 qtdFalhas = getElement('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > '
                        'div:nth-of-type(2) > div > div') or "0"
+tempoDecorrido = getElement('div:nth-child(1) > h2 > div')
 
 driver.save_screenshot("allure_screenshot.png")
 
@@ -53,6 +54,10 @@ embed.add_embed_field("Quantidade de teste", qtdTeste, False)
 
 if qtdFalhas != "0":
     embed.add_embed_field("Falhas", qtdFalhas, False)
+
+tempo_decorrido_match = re.search(r"\((.*?)\)", tempoDecorrido)
+if tempo_decorrido_match:
+    embed.add_embed_field("Tempo decorrido", tempo_decorrido_match.group(1), False)
 
 with open("./allure_screenshot.png", "rb") as f:
     webhook.add_file(file=f.read(), filename="allure_screenshot.png")
