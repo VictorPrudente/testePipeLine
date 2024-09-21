@@ -30,6 +30,7 @@ public class LoginHealthCheckTest extends LoginBase {
     @Test
     @Tags({
             @Tag("Health-Check"),
+            @Tag("Aceitacao"),
             @Tag("Cenário-Positivo")
     })
     @DisplayName(CT_API_LOGIN_01)
