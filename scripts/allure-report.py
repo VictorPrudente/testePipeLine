@@ -14,11 +14,13 @@ title = os.getenv('PIPELINE_NAME')
 options = webdriver.ChromeOptions()
 options.add_argument('--headless')
 driver = webdriver.Chrome(options=options)
-driver.set_window_size(1920,1080)
+driver.set_window_size(1920, 1080)
+
+time.sleep(30)
+
 driver.get(base_url)
 
-#Precisa no futuro trocar por alguma coisa q desabilite as animações. Faltou tempo e expertise, perdoem.
-time.sleep(10)
+
 
 def getElement(selector, timeout=10):
     try:
@@ -26,11 +28,12 @@ def getElement(selector, timeout=10):
     except Exception:
         return None
 
+
 porcentagem = getElement('text[class="chart__caption"]')
 qtdTeste = getElement('.splash__title')
+data = getElement('.widget__title')
 qtdFalhas = getElement('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > '
                        'div:nth-of-type(2) > div > div') or "0"
-
 
 driver.save_screenshot("allure_screenshot.png")
 
@@ -49,7 +52,6 @@ embed.add_embed_field("Quantidade de teste", qtdTeste, False)
 
 if qtdFalhas != "0":
     embed.add_embed_field("Falhas", qtdFalhas, False)
-
 
 with open("./allure_screenshot.png", "rb") as f:
     webhook.add_file(file=f.read(), filename="allure_screenshot.png")
