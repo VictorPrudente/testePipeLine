@@ -165,8 +165,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test-HealthCheck, test-Contrato, test-Funcional, test-Aceitacao]
     if: always() 
-    outputs:
-      url
     steps:
 
       - name: Download Allure reports from Health-Check
