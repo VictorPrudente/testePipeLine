@@ -9,7 +9,7 @@ on:
 
 env:
   PIPELINE_NAME: ${{ github.workflow }}
-  RUN_NUMBER: ${{ GITHUB_RUN_NUMBER }}
+  RUN_NUMBER: ${{ github.run_number }}
   ALLURE_RESULTS: allure-results
   DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
   REPORT_URL: ${{ secrets.REPORT_URL }}
