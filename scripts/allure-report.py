@@ -20,6 +20,7 @@ time.sleep(60)
 
 driver.get(base_url)
 
+time.sleep(5)
 
 
 def getElement(selector, timeout=10):
