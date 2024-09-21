@@ -7,7 +7,6 @@ import re
 import os
 import time
 
-
 webhook_key = os.getenv('DISCORD_WEBHOOK_URL')
 base_url = os.getenv('REPORT_URL') + "/" + os.getenv('RUN_NUMBER') + '/index.html'
 title = os.getenv('PIPELINE_NAME')
@@ -15,10 +14,12 @@ title = os.getenv('PIPELINE_NAME')
 options = webdriver.ChromeOptions()
 options.add_argument('--headless')
 driver = webdriver.Chrome(options=options)
-driver.set_window_size(1920,1080)
+driver.set_window_size(1920, 1080)
 driver.get(base_url)
 
+#Precisa desse tempo pra renderizar as animações. Achar um jeito de desliga-las ao iniciar o web browser e substituir esse sleep. Perdõe, faltou tempo para fazer isso
 time.sleep(10)
+
 
 def getElement(selector, timeout=10):
     try:
@@ -26,9 +27,9 @@ def getElement(selector, timeout=10):
     except Exception:
         return None
 
+
 porcentagem = getElement('text[class="chart__caption"]')
 qtdTeste = getElement('.splash__title')
-data = getElement('.widget__title')
 qtdFalhas = getElement('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > a:nth-of-type(1) > '
                        'div:nth-of-type(2) > div > div') or "0"
 
