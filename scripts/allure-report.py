@@ -5,6 +5,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import re
 import os
+import time
+
 
 webhook_key = os.getenv('DISCORD_WEBHOOK_URL')
 base_url = os.getenv('REPORT_URL') + "/" + os.getenv('RUN_NUMBER') + '/index.html'
@@ -16,25 +18,7 @@ driver = webdriver.Chrome(options=options)
 driver.set_window_size(1920,1080)
 driver.get(base_url)
 
-driver.execute_script("""
-    var style = document.createElement('style');
-    style.type = 'text/css';
-    style.innerHTML = '* { transition: none !important; animation: none !important; }';
-    document.head.appendChild(style);
-
-    var elements = document.querySelectorAll('*');
-    elements.forEach(function(element) {
-        element.style.transition = 'none !important';
-        element.style.animation = 'none !important';
-    });
-
-    var allElements = document.querySelectorAll('*');
-    allElements.forEach(function(element) {
-        element.style.animationDelay = '0s !important';
-        element.style.animationDuration = '0s !important';
-        element.style.animationIterationCount = '1 !important';
-    });
-""")
+time.sleep(10)
 
 def getElement(selector, timeout=10):
     try:
