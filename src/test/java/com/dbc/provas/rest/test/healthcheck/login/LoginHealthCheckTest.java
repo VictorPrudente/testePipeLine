@@ -30,7 +30,6 @@ public class LoginHealthCheckTest extends LoginBase {
     @Test
     @Tags({
             @Tag("Health-Check"),
-            @Tag("Aceitacao"),
             @Tag("Cenário-Positivo")
     })
     @DisplayName(CT_API_LOGIN_01)
@@ -40,6 +39,21 @@ public class LoginHealthCheckTest extends LoginBase {
             loginClient.login(loginRequest)
                     .then()
                     .statusCode(HTTP_OK);
+        });
+    }
+
+    @Test
+    @Tags({
+            @Tag("Aceitacao"),
+            @Tag("Cenário-Negativo")
+    })
+    @DisplayName(CT_API_LOGIN_01)
+    public void testHealthCheckErro() {
+
+        step("Validando a resposta da requisição", () -> {
+            loginClient.login(loginRequest)
+                    .then()
+                    .statusCode(HTTP_CREATED);
         });
     }
 
